@@ -1,0 +1,23 @@
+name: Security
+
+on: 
+  push:
+  pull_request:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Run Snyk to check for vulnerabilities and generate SARIF report
+        uses: snyk/actions/node@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: test --all-projects --sarif-file-output=snyk.sarif
+
+      - name: Upload SARIF report for GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk.sarif
